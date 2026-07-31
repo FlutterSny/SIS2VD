@@ -10,14 +10,19 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
-    # Matrix strategy for parallel builds on Windows and Linux
     strategy:
       matrix:
-        os: [windows-latest, linux-latest]
+        include:
+          - os: windows-latest
+            display_name: Windows
+          - os: ubuntu-latest
+            display_name: Linux
     runs-on: ${{ matrix.os }}
+    name: build (${{ matrix.display_name }})
     
     steps:
       # Step 1: Checkout the repository code
