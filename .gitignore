@@ -7,3 +7,4 @@ dist/
 .vscode/
 *.egg-info/
 output.mp4
+ROADMAP.MD
