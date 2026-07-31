@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+.vscode/
+*.egg-info/
+output.mp4
