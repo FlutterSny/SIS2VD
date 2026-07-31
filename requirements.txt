@@ -1,5 +1,2 @@
-# Python version requirement
-python_requires>=3.11
-
 # GUI framework
 PySide6==6.11.1
