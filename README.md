@@ -1,6 +1,7 @@
 # SIS2VD - Sny's Image Sequence to Video Converter
 
-A modern, user-friendly GUI application for converting image sequences to MP4 videos using FFmpeg. Built with Python and PySide6.
+A VERY user-friendly GUI application for converting image sequences to MP4 videos using FFmpeg. Built with Python and PySide6.
+The philosophy here is to be as simple and efficient as possible, one drag and one click and boom, you have your sequence in an mp4 format that you can share.
 
 ## Features
 
