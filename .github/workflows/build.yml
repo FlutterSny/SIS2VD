@@ -1,12 +1,10 @@
 name: Build SIS2VD
 
 on:
-  # Trigger on push to tags matching v*.*.* (e.g., v1.0.0) for release
+  # Trigger on push to tags (release) OR push to main (build-only test)
   push:
     tags:
       - 'v*.*.*'
-  # Trigger on push/PR to main for build-only (testing)
-  push:
     branches:
       - main
   pull_request:
