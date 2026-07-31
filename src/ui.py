@@ -2,12 +2,13 @@ import sys
 import os
 import shutil
 from pathlib import Path
+from typing import Optional, Dict, Any
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QLineEdit, QFileDialog,
                                QSpinBox, QSlider, QComboBox, QLabel,
                                QProgressBar, QTextEdit, QMessageBox)
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent
+from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
 from sequence_utils import extract_pattern, scan_sequence
 from ffmpeg_worker import FFmpegWorker
 
@@ -15,14 +16,17 @@ from ffmpeg_worker import FFmpegWorker
 class MainWindow(QMainWindow):
     """Main application window for SIS2VD."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("SIS2VD - Sny's Image Sequence to Video Converter")
         self.setMinimumSize(800, 600)
         
         # Worker thread
-        self.worker = None
-        self.current_sequence_info = None
+        self.worker: Optional[FFmpegWorker] = None
+        self.current_sequence_info: Optional[Dict[str, Any]] = None
+        
+        # Drag and drop overlay
+        self._setup_drop_overlay()
         
         # Create central widget with vertical layout
         self.central_widget = QWidget()
@@ -48,7 +52,59 @@ class MainWindow(QMainWindow):
         # Apply dark theme if system prefers it
         self._apply_theme()
     
-    def _apply_theme(self):
+    def _setup_drop_overlay(self):
+        """Setup the drag and drop overlay widget."""
+        from PySide6.QtWidgets import QLabel
+        from PySide6.QtGui import QPainter, QColor, QImage
+        
+        # Create overlay widget
+        self.drop_overlay = QLabel(self)
+        self.drop_overlay.setStyleSheet("""
+            background-color: rgba(0, 0, 0, 150);
+        """)
+        self.drop_overlay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Load and scale the drop icon
+        icon_path = Path(__file__).parent.parent / "assets" / "File_drop.png"
+        if icon_path.exists():
+            pixmap = QPixmap(str(icon_path))
+            # Invert the image colors
+            image = pixmap.toImage()
+            image.invertPixels()
+            pixmap = QPixmap.fromImage(image)
+            
+            # Scale to 50% of window size (using minimum size as reference)
+            window_size = self.minimumSize()
+            scaled_size = window_size * 0.5
+            pixmap = pixmap.scaled(
+                scaled_size.width(),
+                scaled_size.height(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+            self.drop_overlay.setPixmap(pixmap)
+        else:
+            self.drop_overlay.setText("Drop image file here")
+            self.drop_overlay.setStyleSheet("""
+                background-color: rgba(0, 0, 0, 150);
+                color: white;
+                font-size: 24px;
+            """)
+        
+        # Initially hidden
+        self.drop_overlay.hide()
+    
+    def _show_drop_overlay(self):
+        """Show the drop overlay covering the entire window."""
+        self.drop_overlay.setGeometry(0, 0, self.width(), self.height())
+        self.drop_overlay.raise_()
+        self.drop_overlay.show()
+    
+    def _hide_drop_overlay(self):
+        """Hide the drop overlay."""
+        self.drop_overlay.hide()
+    
+    def _apply_theme(self) -> None:
         """Apply dark theme based on system preferences."""
         # On Linux, PySide6 typically respects system theme automatically
         # On Windows, we may need to use Fusion style for better dark theme support
@@ -63,7 +119,7 @@ class MainWindow(QMainWindow):
             if os.getenv("FORCE_DARK_THEME") == "1":
                 self._set_dark_palette()
     
-    def _set_dark_palette(self):
+    def _set_dark_palette(self) -> None:
         """Set dark color palette for the application."""
         from PySide6.QtWidgets import QApplication
         palette = QPalette()
@@ -85,7 +141,7 @@ class MainWindow(QMainWindow):
         
         QApplication.instance().setPalette(palette)
     
-    def _check_ffmpeg_availability(self):
+    def _check_ffmpeg_availability(self) -> None:
         """Check if FFmpeg is available in the system PATH."""
         ffmpeg_path = shutil.which('ffmpeg')
         
@@ -105,7 +161,7 @@ class MainWindow(QMainWindow):
             # FFmpeg found - log the version
             self.log_text_edit.append(f"FFmpeg détecté: {ffmpeg_path}")
     
-    def _add_image_selection_ui(self):
+    def _add_image_selection_ui(self) -> None:
         """Add image selection UI components."""
         # Create horizontal layout for image selection
         image_layout = QHBoxLayout()
@@ -129,7 +185,7 @@ class MainWindow(QMainWindow):
         # Add the horizontal layout to the main vertical layout
         self.layout.addLayout(image_layout)
     
-    def _browse_image_file(self):
+    def _browse_image_file(self) -> None:
         """Open file dialog to select an image file."""
         # Define file filter for image files
         file_filter = "Image Files (*.png *.jpg *.jpeg *.tiff *.exr);;All Files (*)"
@@ -147,7 +203,7 @@ class MainWindow(QMainWindow):
             self.image_path_edit.setText(file_path)
             self._detect_sequence(file_path)
     
-    def _detect_sequence(self, file_path: str):
+    def _detect_sequence(self, file_path: str) -> None:
         """Detect sequence pattern and update UI with sequence info."""
         # Extract pattern from filename
         pattern_info = extract_pattern(file_path)
@@ -194,14 +250,14 @@ class MainWindow(QMainWindow):
         # Set default output path based on sequence location
         self._set_default_output_path(directory, pattern_info['prefix'])
     
-    def _set_default_output_path(self, directory: Path, prefix: str):
+    def _set_default_output_path(self, directory: Path, prefix: str) -> None:
         """Set default output path based on sequence location."""
         # Create output filename from prefix
         output_name = f"{prefix}video.mp4"
         output_path = directory / output_name
         self.output_path_edit.setText(str(output_path))
     
-    def _add_settings_ui(self):
+    def _add_settings_ui(self) -> None:
         """Add settings UI components."""
         # Framerate setting
         framerate_layout = QHBoxLayout()
@@ -271,7 +327,7 @@ class MainWindow(QMainWindow):
         
         self.layout.addLayout(output_layout)
     
-    def _browse_outputFile(self):
+    def _browse_outputFile(self) -> None:
         """Open file dialog to select output file."""
         file_filter = "MP4 Files (*.mp4);;All Files (*)"
         
@@ -288,7 +344,7 @@ class MainWindow(QMainWindow):
                 file_path += '.mp4'
             self.output_path_edit.setText(file_path)
     
-    def _add_action_buttons_ui(self):
+    def _add_action_buttons_ui(self) -> None:
         """Add action buttons and progress UI components."""
         # Sequence info label
         self.sequence_info_label = QLabel("Séquence non détectée")
@@ -327,7 +383,7 @@ class MainWindow(QMainWindow):
         self.log_text_edit.setPlaceholderText("Logs FFmpeg apparaîtront ici...")
         self.layout.addWidget(self.log_text_edit)
     
-    def _start_encoding(self):
+    def _start_encoding(self) -> None:
         """Start the FFmpeg encoding process."""
         # Validate inputs
         if not self.current_sequence_info:
@@ -400,23 +456,23 @@ class MainWindow(QMainWindow):
         # Start worker
         self.worker.start()
     
-    def _cancel_encoding(self):
+    def _cancel_encoding(self) -> None:
         """Cancel the ongoing encoding process."""
         if self.worker:
             self.worker.cancel()
     
-    def _on_progress_updated(self, percentage: int):
+    def _on_progress_updated(self, percentage: int) -> None:
         """Handle progress updates from worker."""
         self.progress_bar.setValue(percentage)
     
-    def _on_log_output(self, log_line: str):
+    def _on_log_output(self, log_line: str) -> None:
         """Handle log output from worker."""
         self.log_text_edit.append(log_line)
         # Auto-scroll to bottom
         scrollbar = self.log_text_edit.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
     
-    def _on_encoding_finished(self, success: bool, message: str):
+    def _on_encoding_finished(self, success: bool, message: str) -> None:
         """Handle encoding completion."""
         # Re-enable controls
         self._set_encoding_state(False)
@@ -433,7 +489,7 @@ class MainWindow(QMainWindow):
         # Clear worker reference
         self.worker = None
     
-    def _set_encoding_state(self, encoding: bool):
+    def _set_encoding_state(self, encoding: bool) -> None:
         """Enable/disable controls based on encoding state."""
         self.generate_button.setEnabled(not encoding)
         self.cancel_button.setEnabled(encoding)
@@ -442,15 +498,23 @@ class MainWindow(QMainWindow):
         self.preset_combobox.setEnabled(not encoding)
         self.output_path_edit.setEnabled(not encoding)
     
-    def dragEnterEvent(self, event: QDragEnterEvent):
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         """Handle drag enter event for file drops."""
         if event.mimeData().hasUrls():
             event.accept()
+            self._show_drop_overlay()
         else:
             event.ignore()
     
-    def dropEvent(self, event: QDropEvent):
+    def dragLeaveEvent(self, event) -> None:
+        """Handle drag leave event to hide overlay."""
+        self._hide_drop_overlay()
+        event.accept()
+    
+    def dropEvent(self, event: QDropEvent) -> None:
         """Handle drop event for file drops."""
+        self._hide_drop_overlay()
+        
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if urls:

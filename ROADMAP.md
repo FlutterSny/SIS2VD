@@ -209,19 +209,19 @@ Python utility with PySide6 GUI to convert image sequences to MP4 video via ffmp
 ## Phase 6: Cross-Platform Compatibility
 
 ### Step 6.1: Path Handling
-- [ ] Ensure all paths use pathlib.Path
-- [ ] Test path joining on Linux
-- [ ] Verify no hardcoded forward/backward slashes
-- [ ] Handle path separators in ffmpeg patterns
+- [x] Ensure all paths use pathlib.Path
+- [x] Test path joining on Linux
+- [x] Verify no hardcoded forward/backward slashes
+- [x] Handle path separators in ffmpeg patterns
 
 **Validation:** Paths work correctly on Linux
 
 ---
 
 ### Step 6.2: Theme Compatibility
-- [ ] Test dark theme on Linux (Breeze/Adwaita)
-- [ ] Ensure UI readable in both light/dark themes
-- [ ] Test on Windows if possible
+- [x] Test dark theme on Linux (Breeze/Adwaita)
+- [x] Ensure UI readable in both light/dark themes
+- [x] Test on Windows if possible
 
 **Validation:** UI looks correct in system dark theme
 
@@ -230,19 +230,19 @@ Python utility with PySide6 GUI to convert image sequences to MP4 video via ffmp
 ## Phase 7: Code Quality and Documentation
 
 ### Step 7.1: Type Hints
-- [ ] Add type hints to all functions
-- [ ] Add type hints to class attributes
-- [ ] Use proper typing imports (Optional, List, Dict, etc.)
+- [x] Add type hints to all functions
+- [x] Add type hints to class attributes
+- [x] Use proper typing imports (Optional, List, Dict, etc.)
 
 **Validation:** mypy passes without errors
 
 ---
 
 ### Step 7.2: Comments and Docstrings
-- [ ] Add docstrings to all classes
-- [ ] Add docstrings to all public methods
-- [ ] Add inline comments for complex logic
-- [ ] Document ffmpeg command parameters
+- [x] Add docstrings to all classes
+- [x] Add docstrings to all public methods
+- [x] Add inline comments for complex logic
+- [x] Document ffmpeg command parameters
 
 **Validation:** Code is well-documented and understandable
 

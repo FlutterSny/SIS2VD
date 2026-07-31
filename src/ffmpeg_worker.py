@@ -1,6 +1,7 @@
 import subprocess
 import re
 from pathlib import Path
+from typing import Optional
 from PySide6.QtCore import QThread, Signal
 
 
@@ -12,23 +13,23 @@ class FFmpegWorker(QThread):
     log_output = Signal(str)  # Log line from FFmpeg
     finished = Signal(bool, str)  # Completion signal (success, message)
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self._cancelled = False
-        self._start_number = None
-        self._framerate = None
-        self._input_pattern = None
-        self._input_directory = None
-        self._crf = None
-        self._preset = None
-        self._output_path = None
-        self._total_frames = None
-        self._process = None
-        self._output_file_created = False
+        self._cancelled: bool = False
+        self._start_number: Optional[int] = None
+        self._framerate: Optional[int] = None
+        self._input_pattern: Optional[str] = None
+        self._input_directory: Optional[Path] = None
+        self._crf: Optional[int] = None
+        self._preset: Optional[str] = None
+        self._output_path: Optional[Path] = None
+        self._total_frames: Optional[int] = None
+        self._process: Optional[subprocess.Popen] = None
+        self._output_file_created: bool = False
     
     def set_parameters(self, start_number: int, framerate: int, 
                        input_pattern: str, input_directory: Path,
-                       crf: int, preset: str, output_path: Path, total_frames: int):
+                       crf: int, preset: str, output_path: Path, total_frames: int) -> None:
         """Set FFmpeg encoding parameters."""
         self._start_number = start_number
         self._framerate = framerate
@@ -39,8 +40,19 @@ class FFmpegWorker(QThread):
         self._output_path = output_path
         self._total_frames = total_frames
     
-    def _build_ffmpeg_command(self) -> list:
-        """Build FFmpeg command with all parameters."""
+    def _build_ffmpeg_command(self) -> list[str]:
+        """Build FFmpeg command with all parameters.
+        
+        FFmpeg command parameters:
+        - start_number: Starting frame number for the sequence
+        - framerate: Input framerate (frames per second)
+        - i: Input file pattern (e.g., /path/to/Shot_1_%04d.png)
+        - c:v:libx264: Use H.264 video codec
+        - crf: Constant Rate Factor (quality, 0-51, lower = better quality)
+        - preset: Encoding speed vs compression efficiency (ultrafast to veryslow)
+        - pix_fmt:yuv420p: Pixel format for maximum compatibility
+        - output_str: Output MP4 file path
+        """
         # Convert output path to string for cross-platform compatibility
         output_str = str(self._output_path)
         
@@ -66,7 +78,7 @@ class FFmpegWorker(QThread):
         
         return command
     
-    def run(self):
+    def run(self) -> None:
         """Main thread execution method."""
         try:
             # Build FFmpeg command
@@ -118,7 +130,7 @@ class FFmpegWorker(QThread):
         except Exception as e:
             self.finished.emit(False, f"Error during encoding: {str(e)}")
     
-    def _parse_progress(self, line: str):
+    def _parse_progress(self, line: str) -> None:
         """Parse FFmpeg output line for progress information."""
         # Look for frame= indicator in FFmpeg output
         # Format: frame= 150 fps=30 q=28.0 size= 1024kB time=00:00:05.00 bitrate=1638.4kbits/s speed=1x
@@ -127,19 +139,19 @@ class FFmpegWorker(QThread):
             current_frame = int(match.group(1))
             
             # Calculate percentage based on total frames
-            if self._total_frames > 0:
+            if self._total_frames and self._total_frames > 0:
                 percentage = int((current_frame / self._total_frames) * 100)
                 # Cap at 100
                 percentage = min(percentage, 100)
                 self.progress_updated.emit(percentage)
     
-    def cancel(self):
+    def cancel(self) -> None:
         """Cancel the FFmpeg process."""
         self._cancelled = True
         self._terminate_process()
         self._cleanup_output_file()
     
-    def _terminate_process(self):
+    def _terminate_process(self) -> None:
         """Gracefully terminate the FFmpeg subprocess."""
         if self._process and self._process.poll() is None:
             # Try graceful termination first
@@ -152,7 +164,7 @@ class FFmpegWorker(QThread):
                 self._process.kill()
                 self._process.wait()
     
-    def _cleanup_output_file(self):
+    def _cleanup_output_file(self) -> None:
         """Clean up the output file if encoding was cancelled or failed."""
         if not self._output_file_created and self._output_path:
             try:

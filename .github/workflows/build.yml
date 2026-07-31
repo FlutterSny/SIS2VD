@@ -1,0 +1,129 @@
+name: Build SIS2VD
+
+on:
+  # Trigger on push to tags matching v*.*.* (e.g., v1.0.0) for release
+  push:
+    tags:
+      - 'v*.*.*'
+  # Trigger on push/PR to main for build-only (testing)
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    # Matrix strategy for parallel builds on Windows and Linux
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Step 2: Setup Python 3.11
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'  # Cache pip dependencies for faster builds
+      
+      # Step 3: Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      # Step 4: Install PyInstaller for building standalone executables
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      
+      # Step 5: Determine icon file based on OS
+      - name: Determine icon file
+        id: icon
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            if [ -f "assets/icon.ico" ]; then
+              echo "icon_arg=--icon=assets/icon.ico" >> $GITHUB_OUTPUT
+            else
+              echo "icon_arg=" >> $GITHUB_OUTPUT
+            fi
+          else
+            if [ -f "assets/icon.png" ]; then
+              echo "icon_arg=--icon=assets/icon.png" >> $GITHUB_OUTPUT
+            else
+              echo "icon_arg=" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      # Step 6: Build standalone executable with PyInstaller
+      # --onefile: Create a single executable file
+      # --windowed: No console window (GUI application)
+      # --name: Output executable name
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD src/main.py
+      
+      # Step 7: Determine output filename based on OS
+      - name: Set output filename
+        id: filename
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            echo "artifact_name=SIS2VD.exe" >> $GITHUB_OUTPUT
+            echo "binary_name=SIS2VD.exe" >> $GITHUB_OUTPUT
+          else
+            echo "artifact_name=SIS2VD-linux" >> $GITHUB_OUTPUT
+            echo "binary_name=SIS2VD" >> $GITHUB_OUTPUT
+          fi
+      
+      # Step 8: Upload the built binary as a GitHub Actions artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.filename.outputs.artifact_name }}
+          path: dist/${{ steps.filename.outputs.binary_name }}
+
+  # Release job: Only runs on tag pushes, depends on build job
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      # Step 1: Checkout code (needed for release notes generation)
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Step 2: Download Windows artifact from build job
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SIS2VD.exe
+          path: ./artifacts
+      
+      # Step 3: Download Linux artifact from build job
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SIS2VD-linux
+          path: ./artifacts
+      
+      # Step 4: Create GitHub Release with the tag as title
+      # Automatically generates release notes from commits
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/SIS2VD.exe
+            artifacts/SIS2VD-linux
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
