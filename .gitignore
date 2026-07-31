@@ -8,3 +8,4 @@ dist/
 *.egg-info/
 output.mp4
 ROADMAP.MD
+example_file_for_testing.md
