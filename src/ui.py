@@ -11,6 +11,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
 from sequence_utils import extract_pattern, scan_sequence
 from ffmpeg_worker import FFmpegWorker
+from settings_dialog import SettingsDialog
 
 
 class MainWindow(QMainWindow):
@@ -18,7 +19,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("SIS2VD - Sny's Image Sequence to Video Converter")
+        self.setWindowTitle(self.tr("SIS2VD - Sny's Image Sequence to Video Converter"))
         self.setMinimumSize(800, 600)
         
         # Worker thread
@@ -149,17 +150,17 @@ class MainWindow(QMainWindow):
             # FFmpeg not found - show error and disable generate button
             QMessageBox.critical(
                 self,
-                "FFmpeg non trouvé",
-                "FFmpeg n'est pas installé ou n'est pas dans le PATH.\n\n"
-                "Veuillez installer FFmpeg et l'ajouter à votre PATH système.\n"
-                "Sans FFmpeg, cette application ne peut pas fonctionner."
+                "FFmpeg not found",
+                "FFmpeg is not installed or is not in the PATH.\n\n"
+                "Please install FFmpeg and add it to your system PATH.\n"
+                "Without FFmpeg, this application cannot function."
             )
             self.generate_button.setEnabled(False)
-            self.generate_button.setToolTip("FFmpeg non disponible")
-            self.log_text_edit.append("ERREUR: FFmpeg non trouvé dans le système.")
+            self.generate_button.setToolTip("FFmpeg not available")
+            self.log_text_edit.append("ERROR: FFmpeg not found in the system.")
         else:
             # FFmpeg found - log the version
-            self.log_text_edit.append(f"FFmpeg détecté: {ffmpeg_path}")
+            self.log_text_edit.append(f"FFmpeg detected: {ffmpeg_path}")
     
     def _add_image_selection_ui(self) -> None:
         """Add image selection UI components."""
@@ -168,17 +169,17 @@ class MainWindow(QMainWindow):
         
         # Label
         from PySide6.QtWidgets import QLabel
-        image_label = QLabel("Image séquence:")
+        image_label = QLabel(self.tr("Image sequence:"))
         image_layout.addWidget(image_label)
         
         # QLineEdit to display selected image path
         self.image_path_edit = QLineEdit()
-        self.image_path_edit.setPlaceholderText("Sélectionner une image de la séquence...")
+        self.image_path_edit.setPlaceholderText(self.tr("Select an image from the sequence..."))
         self.image_path_edit.setReadOnly(True)
         image_layout.addWidget(self.image_path_edit)
         
         # "Parcourir" button
-        browse_button = QPushButton("Parcourir")
+        browse_button = QPushButton(self.tr("Browse"))
         browse_button.clicked.connect(self._browse_image_file)
         image_layout.addWidget(browse_button)
         
@@ -193,7 +194,7 @@ class MainWindow(QMainWindow):
         # Open file dialog
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Sélectionner une image de la séquence",
+            "Select an image from the sequence",
             "",
             file_filter
         )
@@ -209,7 +210,7 @@ class MainWindow(QMainWindow):
         pattern_info = extract_pattern(file_path)
         
         if not pattern_info:
-            self.sequence_info_label.setText("Pattern non détecté")
+            self.sequence_info_label.setText(self.tr("Pattern not detected"))
             self.sequence_info_label.setStyleSheet("color: red; font-style: italic;")
             self.current_sequence_info = None
             return
@@ -219,7 +220,7 @@ class MainWindow(QMainWindow):
         sequence_info = scan_sequence(directory, pattern_info)
         
         if not sequence_info:
-            self.sequence_info_label.setText("Aucun fichier de séquence trouvé")
+            self.sequence_info_label.setText(self.tr("No sequence files found"))
             self.sequence_info_label.setStyleSheet("color: red; font-style: italic;")
             self.current_sequence_info = None
             return
@@ -261,7 +262,7 @@ class MainWindow(QMainWindow):
         """Add settings UI components."""
         # Framerate setting
         framerate_layout = QHBoxLayout()
-        framerate_label = QLabel("Framerate (fps):")
+        framerate_label = QLabel(self.tr("Framerate (fps):"))
         framerate_layout.addWidget(framerate_label)
         
         self.framerate_spinbox = QSpinBox()
@@ -274,11 +275,11 @@ class MainWindow(QMainWindow):
         
         # CRF (Constant Rate Factor) setting
         crf_layout = QHBoxLayout()
-        crf_label = QLabel("CRF (Qualité):")
+        crf_label = QLabel(self.tr("CRF (Quality):"))
         crf_label.setToolTip(
-            "CRF (Constant Rate Factor): Échelle de qualité x264\n"
-            "0 = lossless, 18 = haute qualité (défaut), 23 = défaut ffmpeg,\n"
-            "28 = bonne qualité, 51 = pire qualité. Valeurs plus basses = meilleure qualité."
+            self.tr("CRF (Constant Rate Factor): x264 quality scale\n"
+            "0 = lossless, 18 = high quality (default), 23 = ffmpeg default,\n"
+            "28 = good quality, 51 = worst quality. Lower values = better quality.")
         )
         crf_layout.addWidget(crf_label)
         
@@ -297,7 +298,7 @@ class MainWindow(QMainWindow):
         
         # x264 Preset setting
         preset_layout = QHBoxLayout()
-        preset_label = QLabel("x264 Preset:")
+        preset_label = QLabel(self.tr("x264 Preset:"))
         preset_layout.addWidget(preset_label)
         
         self.preset_combobox = QComboBox()
@@ -314,14 +315,14 @@ class MainWindow(QMainWindow):
         
         # Output path setting
         output_layout = QHBoxLayout()
-        output_label = QLabel("Fichier de sortie:")
+        output_label = QLabel(self.tr("Output file:"))
         output_layout.addWidget(output_label)
         
         self.output_path_edit = QLineEdit()
-        self.output_path_edit.setPlaceholderText("Sélectionner le fichier de sortie...")
+        self.output_path_edit.setPlaceholderText(self.tr("Select output file..."))
         output_layout.addWidget(self.output_path_edit)
         
-        output_browse_button = QPushButton("Parcourir")
+        output_browse_button = QPushButton(self.tr("Browse"))
         output_browse_button.clicked.connect(self._browse_outputFile)
         output_layout.addWidget(output_browse_button)
         
@@ -333,7 +334,7 @@ class MainWindow(QMainWindow):
         
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            "Sélectionner le fichier de sortie",
+            "Select output file",
             "",
             file_filter
         )
@@ -347,7 +348,7 @@ class MainWindow(QMainWindow):
     def _add_action_buttons_ui(self) -> None:
         """Add action buttons and progress UI components."""
         # Sequence info label
-        self.sequence_info_label = QLabel("Séquence non détectée")
+        self.sequence_info_label = QLabel(self.tr("Sequence not detected"))
         self.sequence_info_label.setStyleSheet("color: gray; font-style: italic;")
         self.layout.addWidget(self.sequence_info_label)
         
@@ -362,15 +363,21 @@ class MainWindow(QMainWindow):
         buttons_layout = QHBoxLayout()
         
         # "Générer la vidéo" button
-        self.generate_button = QPushButton("Générer la vidéo")
+        self.generate_button = QPushButton(self.tr("Generate video"))
         self.generate_button.clicked.connect(self._start_encoding)
         buttons_layout.addWidget(self.generate_button)
         
         # "Annuler" button (initially disabled)
-        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self._cancel_encoding)
         buttons_layout.addWidget(self.cancel_button)
+        
+        # Settings button with gear emoji
+        settings_button = QPushButton(self.tr("⚙️"))
+        settings_button.setToolTip(self.tr("Settings"))
+        settings_button.clicked.connect(self._open_settings)
+        buttons_layout.addWidget(settings_button)
         
         buttons_layout.addStretch()
         
@@ -380,19 +387,19 @@ class MainWindow(QMainWindow):
         self.log_text_edit = QTextEdit()
         self.log_text_edit.setReadOnly(True)
         self.log_text_edit.setMaximumHeight(150)
-        self.log_text_edit.setPlaceholderText("Logs FFmpeg apparaîtront ici...")
+        self.log_text_edit.setPlaceholderText(self.tr("FFmpeg logs will appear here..."))
         self.layout.addWidget(self.log_text_edit)
     
     def _start_encoding(self) -> None:
         """Start the FFmpeg encoding process."""
         # Validate inputs
         if not self.current_sequence_info:
-            QMessageBox.warning(self, "Aucune séquence", "Veuillez d'abord sélectionner une image de séquence.")
+            QMessageBox.warning(self, "No sequence", "Please select a sequence image first.")
             return
         
         output_path = self.output_path_edit.text()
         if not output_path:
-            QMessageBox.warning(self, "Pas de sortie", "Veuillez spécifier un fichier de sortie.")
+            QMessageBox.warning(self, "No output", "Please specify an output file.")
             return
         
         # Validate output path directory is writable
@@ -400,13 +407,13 @@ class MainWindow(QMainWindow):
         try:
             output_dir = output_file.parent
             if not output_dir.exists():
-                QMessageBox.warning(self, "Répertoire inexistant", f"Le répertoire de sortie n'existe pas: {output_dir}")
+                QMessageBox.warning(self, "Directory does not exist", f"Output directory does not exist: {output_dir}")
                 return
             if not os.access(output_dir, os.W_OK):
-                QMessageBox.warning(self, "Permission refusée", f"Pas d'accès en écriture pour: {output_dir}")
+                QMessageBox.warning(self, "Permission denied", f"No write access for: {output_dir}")
                 return
         except Exception as e:
-            QMessageBox.warning(self, "Erreur de validation", f"Erreur lors de la validation du chemin: {str(e)}")
+            QMessageBox.warning(self, "Validation error", f"Error validating path: {str(e)}")
             return
         
         # Get parameters
@@ -422,10 +429,10 @@ class MainWindow(QMainWindow):
         
         # Validate parameter ranges
         if framerate < 1 or framerate > 120:
-            QMessageBox.warning(self, "Paramètre invalide", "Le framerate doit être entre 1 et 120.")
+            QMessageBox.warning(self, "Invalid parameter", "Framerate must be between 1 and 120.")
             return
         if crf < 0 or crf > 51:
-            QMessageBox.warning(self, "Paramètre invalide", "Le CRF doit être entre 0 et 51.")
+            QMessageBox.warning(self, "Invalid parameter", "CRF must be between 0 and 51.")
             return
         
         # Create and configure worker
@@ -479,9 +486,9 @@ class MainWindow(QMainWindow):
         
         # Show completion message
         if success:
-            QMessageBox.information(self, "Succès", message)
+            QMessageBox.information(self, "Success", message)
         else:
-            QMessageBox.warning(self, "Erreur", message)
+            QMessageBox.warning(self, "Error", message)
         
         # Hide progress bar after a delay
         self.progress_bar.setVisible(False)
@@ -497,6 +504,11 @@ class MainWindow(QMainWindow):
         self.crf_slider.setEnabled(not encoding)
         self.preset_combobox.setEnabled(not encoding)
         self.output_path_edit.setEnabled(not encoding)
+    
+    def _open_settings(self) -> None:
+        """Open the settings dialog."""
+        dialog = SettingsDialog(self)
+        dialog.exec()
     
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         """Handle drag enter event for file drops."""
