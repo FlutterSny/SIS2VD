@@ -46,9 +46,10 @@ jobs:
       
       # Step 5: Compile translation files (.ts to .qm)
       - name: Compile translations
+        shell: bash
         run: |
           for ts_file in locales/*.ts; do
-            pyside6-lrelease "$ts_file" -qm "${ts_file%.ts}.qm"
+          pyside6-lrelease "$ts_file" -qm "${ts_file%.ts}.qm"
           done
       
       # Step 6: Determine icon file based on OS
