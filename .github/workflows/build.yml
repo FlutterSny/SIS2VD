@@ -44,7 +44,14 @@ jobs:
       - name: Install PyInstaller
         run: pip install pyinstaller
       
-      # Step 5: Determine icon file based on OS
+      # Step 5: Compile translation files (.ts to .qm)
+      - name: Compile translations
+        run: |
+          for ts_file in locales/*.ts; do
+            pyside6-lrelease "$ts_file" -qm "${ts_file%.ts}.qm"
+          done
+      
+      # Step 6: Determine icon file based on OS
       - name: Determine icon file
         id: icon
         shell: bash
@@ -63,15 +70,16 @@ jobs:
             fi
           fi
       
-      # Step 6: Build standalone executable with PyInstaller
+      # Step 7: Build standalone executable with PyInstaller
       # --onefile: Create a single executable file
       # --windowed: No console window (GUI application)
       # --name: Output executable name
+      # --add-data: Include the src package and assets
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD src/main.py
+          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="src:src" --add-data="assets:assets" --add-data="locales:locales" __main__.py
       
-      # Step 7: Determine output filename based on OS
+      # Step 8: Determine output filename based on OS
       - name: Set output filename
         id: filename
         shell: bash
