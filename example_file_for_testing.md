@@ -1,1 +1,0 @@
-/media/BIGDD/_SNYPROD/Projects/Melursus_Figurine-GW/4-RENDER/Shot_1/Shot_1_0100.png
