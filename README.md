@@ -42,7 +42,7 @@ The philosophy here is to be as simple and efficient as possible, one drag and o
 
 1. Run the application:
    ```bash
-   python src/main.py
+   python run.py
    ```
 
 2. **Load an image sequence**:

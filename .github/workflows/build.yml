@@ -89,7 +89,7 @@ jobs:
       # --add-data: Include the src package and assets
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="assets${{ steps.separator.outputs.separator }}assets" --add-data="locales${{ steps.separator.outputs.separator }}locales" src/main.py
+          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="assets${{ steps.separator.outputs.separator }}assets" --add-data="locales${{ steps.separator.outputs.separator }}locales" run.py
       
       # Step 9: Determine output filename based on OS
       - name: Set output filename

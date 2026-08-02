@@ -11,6 +11,4 @@ output.mp4
 .qm
 
 #Fichiers de travail Sny
-ROADMAP.md
-example_file_for_testing.md
-TODO.md
+.SNY_WORKDIR/
