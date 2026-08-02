@@ -2,7 +2,7 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
-from ui import MainWindow
+from .ui import MainWindow
 from PySide6.QtCore import QTranslator, QLocale
 """Sny's Image Sequence to Video Converter. 2026"""
 
@@ -16,7 +16,7 @@ def main():
     app.setWindowIcon(QIcon(icon_path))
     
     # Load settings first to get language preference
-    from app_settings import AppSettings
+    from .app_settings import AppSettings
     settings = AppSettings()
     
     # Load translations based on saved language
@@ -28,7 +28,7 @@ def main():
     
     if not settings.has_completed_onboarding():
         # Show onboarding dialog
-        from onboarding_dialog import OnboardingDialog
+        from .onboarding_dialog import OnboardingDialog
         dialog = OnboardingDialog()
         if dialog.exec() == 0:  # Cancelled
             sys.exit(0)

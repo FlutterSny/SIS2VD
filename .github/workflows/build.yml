@@ -69,7 +69,7 @@ jobs:
       # --name: Output executable name
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD src/main.py
+          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD run.py
       
       # Step 7: Determine output filename based on OS
       - name: Set output filename
