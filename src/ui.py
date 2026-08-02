@@ -9,9 +9,9 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QProgressBar, QTextEdit, QMessageBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
-from sequence_utils import extract_pattern, scan_sequence
-from ffmpeg_worker import FFmpegWorker
-from settings_dialog import SettingsDialog
+from .sequence_utils import extract_pattern, scan_sequence
+from .ffmpeg_worker import FFmpegWorker
+from .settings_dialog import SettingsDialog
 
 
 class MainWindow(QMainWindow):

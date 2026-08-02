@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QGroupBox
 from PySide6.QtCore import Qt
-from app_settings import AppSettings
+from .app_settings import AppSettings
 
 
 class SettingsDialog(QDialog):

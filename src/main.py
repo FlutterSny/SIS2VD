@@ -1,5 +1,15 @@
 import sys
 import os
+
+# Bootstrap sys.path for direct script execution (when relative imports fail)
+# This allows the application to run with 'python src/main.py' in addition to 'python -m src.main'
+if __name__ == "__main__" and __package__ is None:
+    # Add the project root directory to Python path when running directly as a script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
 from .ui import MainWindow

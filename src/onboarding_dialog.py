@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QGroupBox, QFrame
 from PySide6.QtCore import Qt
-from app_settings import AppSettings
+from .app_settings import AppSettings
 
 class OnboardingDialog(QDialog):
     def __init__(self, parent=None):

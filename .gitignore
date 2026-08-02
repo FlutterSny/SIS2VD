@@ -7,7 +7,10 @@ dist/
 .vscode/
 *.egg-info/
 output.mp4
-ROADMAP.md
-example_file_for_testing.md
 *.kra
 .qm
+
+#Fichiers de travail Sny
+ROADMAP.md
+example_file_for_testing.md
+TODO.md
