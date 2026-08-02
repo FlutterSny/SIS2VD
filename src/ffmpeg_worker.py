@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Optional
 from PySide6.QtCore import QThread, Signal
 
+from ffmpeg_locator import get_ffmpeg_path
+
 
 class FFmpegWorker(QThread):
     """Worker thread for executing FFmpeg encoding."""
@@ -63,9 +65,16 @@ class FFmpegWorker(QThread):
         else:
             input_pattern = self._input_pattern
         
+        # Resolve FFmpeg binary (portable or system PATH)
+        ffmpeg_binary = get_ffmpeg_path()
+        if ffmpeg_binary is None:
+            raise FileNotFoundError(
+                "FFmpeg not found. Please install FFmpeg or download a portable binary."
+            )
+
         # Build the command list
         command = [
-            'ffmpeg',
+            ffmpeg_binary,
             '-start_number', str(self._start_number),
             '-framerate', str(self._framerate),
             '-i', input_pattern,
