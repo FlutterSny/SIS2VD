@@ -23,8 +23,9 @@ def main():
     # Load translations based on saved language
     translator = QTranslator()
     lang_code = settings.get_language()
-    # Load the specific .qm file directly
-    if translator.load(f"locales/sis2vd_{lang_code}.qm"):
+    # Load the specific .qm file directly using absolute path
+    locales_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "locales")
+    if translator.load(f"sis2vd_{lang_code}.qm", locales_dir):
         app.installTranslator(translator)
     
     if not settings.has_completed_onboarding():
@@ -40,7 +41,8 @@ def main():
         # Reload translation with the language selected in onboarding
         lang_code = settings.get_language()
         translator = QTranslator()
-        if translator.load(f"locales/sis2vd_{lang_code}.qm"):
+        locales_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "locales")
+        if translator.load(f"sis2vd_{lang_code}.qm", locales_dir):
             app.installTranslator(translator)
     
     window = MainWindow()

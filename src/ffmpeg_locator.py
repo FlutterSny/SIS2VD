@@ -4,14 +4,17 @@ FFmpeg Locator - Detects and provides access to FFmpeg binary.
 This module handles detection only. The download functionality has been
 moved to the dedicated ffmpeg_downloader module.
 
-Priority order:
-  1. Portable binary in app data directory (if already downloaded)
-  2. System PATH ffmpeg (via shutil.which)
-  3. None if neither exists
+Priority order (with persistence):
+  1. Stored FFmpeg path from AppSettings (validated at each launch)
+  2. Portable binary in app data directory (if already downloaded)
+  3. System PATH ffmpeg (via shutil.which)
+  4. None if neither exists
+
+When a valid path is found, it is persisted to AppSettings so the next
+launch can skip re-detection.
 """
 import shutil
 from pathlib import Path
-from PySide6.QtCore import QStandardPaths
 
 # Re-export downloader components for convenience
 from src.ffmpeg_downloader import (
@@ -28,6 +31,15 @@ from src.ffmpeg_downloader import (
 # Directory name inside AppDataLocation where portable FFmpeg is stored
 _FFMPEG_DIR_NAME = "ffmpeg"
 _FFMPEG_BINARY_NAME = "ffmpeg.exe" if __import__("platform").system() == "Windows" else "ffmpeg"
+
+
+# ── Lazy singleton for AppSettings ─────────────────────────────────────
+
+def _settings():
+    """Lazily import and return a single AppSettings instance."""
+    # Lazy import to avoid circular dependency at module load time
+    from src.app_settings import AppSettings
+    return AppSettings()
 
 
 # ── Helper: app data path ──────────────────────────────────────────────
@@ -61,19 +73,37 @@ def check_system_ffmpeg() -> str | None:
 def get_ffmpeg_path() -> str | None:
     """
     Return the FFmpeg binary path to use, in priority order:
-      1. Portable binary (if already downloaded)
-      2. System PATH ffmpeg
-      3. None
+      1. Stored path from AppSettings (validated; returns quickly if still valid)
+      2. Portable binary (if already downloaded)
+      3. System PATH ffmpeg
+      4. None
+
+    When a path is resolved (priority 2 or 3), it is persisted to
+    AppSettings for the next launch.
     """
-    # Priority 1: portable
+    # Priority 1: stored and validated path
+    settings = _settings()
+    stored = settings.get_validated_ffmpeg_path()
+    if stored:
+        return stored
+
+    # Priority 2: portable binary in app data dir
     portable = get_portable_ffmpeg_path()
     if portable:
-        return str(portable)
+        resolved = str(portable)
+        settings.set_ffmpeg_path(resolved)
+        return resolved
 
-    # Priority 2: system PATH
+    # Priority 3: system PATH ffmpeg
     system = check_system_ffmpeg()
     if system:
+        settings.set_ffmpeg_path(system)
         return system
 
-    # Priority 3: nothing
+    # Priority 4: nothing found
     return None
+
+
+def clear_stored_ffmpeg_path() -> None:
+    """Clear the stored FFmpeg path so detection re-runs next time."""
+    _settings().set_ffmpeg_path("")

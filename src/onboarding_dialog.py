@@ -137,6 +137,21 @@ class OnboardingDialog(QDialog):
         manual_layout.addWidget(self._manual_btn)
         layout.addLayout(manual_layout)
 
+        # ── Licensing / attribution note ───────────────────────────
+        license_label = QLabel(
+            self.tr(
+                "FFmpeg is free and open-source software. "
+                "The build provided is under the GPL license. "
+                "Visit <a href='https://ffmpeg.org'>ffmpeg.org</a>"
+            )
+        )
+        license_label.setWordWrap(True)
+        license_label.setAlignment(Qt.AlignCenter)
+        license_label.setTextFormat(Qt.RichText)
+        license_label.setOpenExternalLinks(True)
+        license_label.setStyleSheet("color: gray; font-size: 10px;")
+        layout.addWidget(license_label)
+
         page.setLayout(layout)
         return page
 
@@ -214,21 +229,13 @@ class OnboardingDialog(QDialog):
         import subprocess
         try:
             result = subprocess.run(
-                [str(candidate), "--version"],
+                [str(candidate), "-version"],
                 capture_output=True, timeout=10
             )
             if result.returncode == 0 and b"ffmpeg" in result.stdout.lower():
-                # It's a valid FFmpeg binary — place it where the locator expects
-                from .ffmpeg_locator import _ffmpeg_data_dir, _FFMPEG_BINARY_NAME
-                target = _ffmpeg_data_dir()
-                target.mkdir(parents=True, exist_ok=True)
-                import shutil
-                dest_binary = target / _FFMPEG_BINARY_NAME
-                shutil.copy2(str(candidate), str(dest_binary))
-                if sys.platform != "win32":
-                    dest_binary.chmod(0o755)
-
+                # It's a valid FFmpeg binary — store the user's selected path directly
                 settings = AppSettings()
+                settings.set_ffmpeg_path(str(candidate))
                 settings.set_onboarding_completed(True)
                 self._status_label.setText(
                     self.tr("FFmpeg located and registered successfully.")

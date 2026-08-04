@@ -4,7 +4,7 @@ A VERY user-friendly GUI application for converting image sequences to MP4 video
 
 [![Download](https://img.shields.io/badge/Download-Latest%20Release-blue?style=flat-square)](https://github.com/FlutterSny/SIS2VD/releases)
 
-**Quick Start**: Grab a pre-built binary from the [Releases page](https://github.com/FlutterSny/SIS2VD/releases), run it, and you're done. No Python or pip required — just make sure FFmpeg is installed on your system.
+**Quick Start**: Grab a pre-built binary from the [Releases page](https://github.com/FlutterSny/SIS2VD/releases), run it, and you're done. No Python or pip required — FFmpeg will be auto-detected or downloaded via the built-in onboarding wizard on first launch.
 
 ## Features
 
@@ -18,9 +18,8 @@ A VERY user-friendly GUI application for converting image sequences to MP4 video
 
 ## Requirements
 
-- **FFmpeg**: Must be installed and available in your system PATH
-  - Linux: `sudo dnf install ffmpeg` (Fedora) or `sudo apt install ffmpeg` (Ubuntu)
-  - Windows: Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH
+- **FFmpeg**: Required for video encoding, but **no manual installation needed**.
+  On first launch, the application will automatically detect FFmpeg at common system paths. If not found, a built-in onboarding wizard will guide you through either downloading a portable FFmpeg bundle or pointing to an existing installation. You can also manage FFmpeg anytime from the **⚙️ Settings** dialog.
 - **Python 3.11+**: Required only if running from source (see Installation below)
 
 ## Installation
@@ -39,7 +38,7 @@ The easiest way to get started is to download a pre-built executable from the [R
    ```
 4. Run the application
 
-**Note**: FFmpeg is NOT bundled in the executable. Install it separately using the commands in the Requirements section above.
+**Note**: FFmpeg is not pre-bundled, but the onboarding wizard will handle setup automatically if it's not already detected on your system.
 
 ### Option 2: Run from Source
 
@@ -54,9 +53,9 @@ The easiest way to get started is to download a pre-built executable from the [R
    pip install -r requirements.txt
    ```
 
-3. Ensure FFmpeg is installed and in your PATH:
+3. Run the application — FFmpeg will be auto-detected, or the onboarding wizard will guide you through setup:
    ```bash
-   ffmpeg -version
+   python run.py
    ```
 
 ## Usage
@@ -64,7 +63,9 @@ The easiest way to get started is to download a pre-built executable from the [R
 1. **Start the application**:
    - Pre-built binary: double-click `SIS2VD.exe` (Windows) or `./SIS2VD-linux` (Linux)
    - From source: `python run.py`
-   > On first launch, a language selection dialog will appear. Choose English or Français to set your preferred UI language.
+   > On first launch, an onboarding wizard will guide you through:
+   > 1. **Language selection** — choose English or Français
+   > 2. **FFmpeg setup** (only if not auto-detected) — download a portable FFmpeg bundle, or browse to an existing installation
 
 2. **Load an image sequence**:
    - Click the **Browse** button and select any image from your sequence, OR
@@ -103,7 +104,7 @@ On first launch, an onboarding dialog prompts you to select your preferred langu
 
 ## Known Limitations
 
-- **FFmpeg Required**: FFmpeg must be installed and in PATH — the application cannot function without it
+- **FFmpeg Required**: The application requires FFmpeg to encode videos, but setup is handled automatically via the onboarding wizard (auto-download or manual path selection). FFmpeg does not need to be in your system PATH.
 - **Single Sequence**: Only processes one sequence at a time
 - **Output Format**: Currently only outputs MP4 format with H.264 codec
 - **Gap Handling**: Gaps are detected but not automatically filled
@@ -164,8 +165,7 @@ The resulting binary will be in the `dist/` directory.
 ## Troubleshooting
 
 **"FFmpeg not found" / "FFmpeg non trouvé" error:**
-- Ensure FFmpeg is installed and in your system PATH
-- Verify by running `ffmpeg -version` in a terminal
+- Open **⚙️ Settings** and use the FFmpeg section to either download a portable FFmpeg bundle, browse to an existing installation, or click "Reset and re-detect" to re-scan common paths.
 
 **"Pattern not detected" / "Pattern non détecté" error:**
 - Ensure the filename ends with a number (e.g., `image_001.png`)

@@ -1,6 +1,5 @@
 import sys
 import os
-import shutil
 from pathlib import Path
 from typing import Optional, Dict, Any
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -9,6 +8,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QProgressBar, QTextEdit, QMessageBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
+from .app_settings import AppSettings
 from .sequence_utils import extract_pattern, scan_sequence
 from .ffmpeg_worker import FFmpegWorker
 from .settings_dialog import SettingsDialog
@@ -143,23 +143,24 @@ class MainWindow(QMainWindow):
         QApplication.instance().setPalette(palette)
     
     def _check_ffmpeg_availability(self) -> None:
-        """Check if FFmpeg is available in the system PATH."""
-        ffmpeg_path = shutil.which('ffmpeg')
-        
+        """Validate that a working FFmpeg binary is available."""
+        ffmpeg_path = AppSettings().get_validated_ffmpeg_path()
+
         if not ffmpeg_path:
-            # FFmpeg not found - show error and disable generate button
+            # Genuine edge case: no valid FFmpeg path configured
             QMessageBox.critical(
                 self,
-                "FFmpeg not found",
-                "FFmpeg is not installed or is not in the PATH.\n\n"
-                "Please install FFmpeg and add it to your system PATH.\n"
-                "Without FFmpeg, this application cannot function."
+                self.tr("FFmpeg not found"),
+                self.tr(
+                    "FFmpeg is not configured.\n\n"
+                    "Please use Settings to specify a valid FFmpeg binary path.\n"
+                    "Without FFmpeg, this application cannot function."
+                )
             )
             self.generate_button.setEnabled(False)
-            self.generate_button.setToolTip("FFmpeg not available")
-            self.log_text_edit.append("ERROR: FFmpeg not found in the system.")
+            self.generate_button.setToolTip(self.tr("FFmpeg not available"))
+            self.log_text_edit.append(self.tr("ERROR: No valid FFmpeg path configured."))
         else:
-            # FFmpeg found - log the version
             self.log_text_edit.append(f"FFmpeg detected: {ffmpeg_path}")
     
     def _add_image_selection_ui(self) -> None:
@@ -267,7 +268,7 @@ class MainWindow(QMainWindow):
         
         self.framerate_spinbox = QSpinBox()
         self.framerate_spinbox.setRange(1, 120)
-        self.framerate_spinbox.setValue(30)
+        self.framerate_spinbox.setValue(25)
         framerate_layout.addWidget(self.framerate_spinbox)
         framerate_layout.addStretch()
         

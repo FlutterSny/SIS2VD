@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 from PySide6.QtCore import QThread, Signal
 
-from ffmpeg_locator import get_ffmpeg_path
+from .ffmpeg_locator import get_ffmpeg_path
 
 
 class FFmpegWorker(QThread):

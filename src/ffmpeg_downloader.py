@@ -16,12 +16,14 @@ not straightforward. On macOS, the system (Homebrew) FFmpeg is preferred.
 import os
 import platform
 import shutil
+import socket
 import subprocess
 import tarfile
 import zipfile
 import urllib.request
+import urllib.error
 from pathlib import Path
-from PySide6.QtCore import QStandardPaths, QThread, Signal
+from PySide6.QtCore import QStandardPaths, QThread, Signal, QCoreApplication
 
 
 # ── Platform detection ───────────────────────────────────────────────────
@@ -200,6 +202,25 @@ def _extract_linux_tarxz(archive_path: Path, dest_dir: Path) -> Path | None:
 
 # ── Download helper ─────────────────────────────────────────────────────
 
+def _check_disk_space(path: Path, required_bytes: int) -> bool:
+    """
+    Check if there is enough disk space for the download.
+
+    Returns True if sufficient space is available.
+    """
+    try:
+        usage = shutil.disk_usage(str(path.parent))
+        return usage.free >= required_bytes
+    except (OSError, AttributeError):
+        # disk_usage not available on some platforms; skip check
+        return True
+
+
+def _tr_ffmpeg(text: str) -> str:
+    """Helper to translate strings from outside a QWidget/QThread context."""
+    return QCoreApplication.translate("FFmpegDownloadWorker", text)
+
+
 def _download_with_progress(
     url: str,
     dest: Path,
@@ -218,34 +239,105 @@ def _download_with_progress(
         log_signal: Signal(str) for informational messages.
         cancelled_flag: Dict with key 'cancelled' (mutable reference).
         chunk_size: Read buffer size in bytes.
-    """
-    log_signal.emit("Connecting to download source...")
 
-    response = urllib.request.urlopen(url, timeout=60)
+    Raises:
+        NoConnectionError: When no internet connection is available.
+        DiskSpaceError: When insufficient disk space for download.
+        DownloadError: For other download-related failures.
+    """
+    log_signal.emit(_tr_ffmpeg("Connecting to download source..."))
+
+    # Handle URL exceptions with specific messages
+    try:
+        response = urllib.request.urlopen(url, timeout=60)
+    except urllib.error.URLError as exc:
+        # Reason is an underlying exception (e.g., socket.gaierror, ConnectionRefusedError)
+        reason = exc.reason
+        if isinstance(reason, (socket.gaierror, ConnectionRefusedError, ConnectionResetError)):
+            raise _NoConnectionError(
+                _tr_ffmpeg("Cannot connect to download server. Please check your internet connection.")
+            ) from exc
+        # Generic URLError fallback
+        raise _DownloadError(_tr_ffmpeg("Failed to connect to download server: {}").format(reason)) from exc
+    except socket.timeout:
+        raise _NoConnectionError(
+            _tr_ffmpeg("Connection timed out. Please check your internet connection and try again.")
+        )
+    except urllib.error.HTTPError as exc:
+        raise _DownloadError(
+            _tr_ffmpeg("Server returned HTTP {}. The download URL may be unavailable.").format(exc.code)
+        ) from exc
+
     total = int(response.headers.get("Content-Length", 0))
+
+    # Check disk space if content-length is known and substantial (>50MB typical ffmpeg)
+    if total > 1024 * 1024:
+        if not _check_disk_space(dest, total + (10 * 1024 * 1024)):  # +10MB buffer for extraction
+            raise _DiskSpaceError(
+                _tr_ffmpeg("Insufficient disk space. Need ~{} MB, but less free space is available on the drive.").format(total / (1024*1024))
+            )
 
     downloaded = 0
 
-    with open(dest, "wb") as f:
-        while True:
-            if cancelled_flag.get("cancelled", False):
-                f.close()
-                dest.unlink(missing_ok=True)
-                log_signal.emit("Download cancelled.")
-                return
+    try:
+        with open(dest, "wb") as f:
+            while True:
+                if cancelled_flag.get("cancelled", False):
+                    f.close()
+                    dest.unlink(missing_ok=True)
+                    log_signal.emit(_tr_ffmpeg("Download cancelled."))
+                    return
 
-            chunk = response.read(chunk_size)
-            if not chunk:
-                break
+                chunk = response.read(chunk_size)
+                if not chunk:
+                    break
 
-            f.write(chunk)
-            downloaded += len(chunk)
+                try:
+                    f.write(chunk)
+                except OSError as exc:
+                    if exc.errno == 28:  # ENOSPC
+                        raise _DiskSpaceError(
+                            _tr_ffmpeg("Disk full during download. Please free up space and try again.")
+                        ) from exc
+                    raise
 
-            if total > 0:
-                pct = int((downloaded / total) * 100)
-                progress_signal.emit(pct)
+                downloaded += len(chunk)
 
-    log_signal.emit(f"Download complete ({downloaded / (1024 * 1024):.1f} MB).")
+                if total > 0:
+                    pct = int((downloaded / total) * 100)
+                    progress_signal.emit(pct)
+    except (_DiskSpaceError, _NoConnectionError, _DownloadError):
+        # Clean up partial download on known errors
+        dest.unlink(missing_ok=True)
+        raise
+    except OSError as exc:
+        dest.unlink(missing_ok=True)
+        raise _DownloadError(_tr_ffmpeg("Failed to write download file: {}").format(exc)) from exc
+
+    log_signal.emit(_tr_ffmpeg("Download complete ({} MB).").format(downloaded / (1024 * 1024)))
+
+
+# ── Custom error types for UI handling ──────────────────────────────────
+
+class NoConnectionError(Exception):
+    """Raised when no internet connection is available."""
+    pass
+
+
+class DiskSpaceError(Exception):
+    """Raised when disk space is insufficient."""
+    pass
+
+
+class DownloadError(Exception):
+    """Raised for other download-related failures."""
+    pass
+
+
+# Backward-compatible aliases (used in pipeline)
+_NoConnectionError = NoConnectionError
+_DiskSpaceError = DiskSpaceError
+_DownloadError = DownloadError
 
 
 # ── Main download worker (QThread) ─────────────────────────────────────
@@ -274,6 +366,12 @@ class FFmpegDownloadWorker(QThread):
         """Request the download to stop."""
         self._cancelled["cancelled"] = True
 
+    # ── translation helper ───────────────────────────────────────────
+
+    def _tr(self, text: str) -> str:
+        """Translate a string using QCoreApplication.translate (for use in QThread)."""
+        return QCoreApplication.translate("FFmpegDownloadWorker", text)
+
     def run(self) -> None:
         """Execute the full download -> extract -> verify pipeline."""
         dest_dir = ffmpeg_data_dir()
@@ -281,7 +379,7 @@ class FFmpegDownloadWorker(QThread):
 
         # Check if already installed
         if binary_path.is_file() and verify_ffmpeg_binary(binary_path):
-            self.finished.emit(True, "Portable FFmpeg already present and verified.")
+            self.finished.emit(True, self._tr("Portable FFmpeg already present and verified."))
             return
 
         # Verify download is supported on this platform
@@ -289,8 +387,10 @@ class FFmpegDownloadWorker(QThread):
         if url is None:
             self.finished.emit(
                 False,
-                "Auto-download not supported on this platform. "
-                "Please specify FFmpeg path manually.",
+                self._tr(
+                    "Auto-download not supported on this platform. "
+                    "Please specify FFmpeg path manually."
+                ),
             )
             return
 
@@ -298,9 +398,59 @@ class FFmpegDownloadWorker(QThread):
 
         try:
             self._execute_pipeline(dest_dir, url)
+        except NoConnectionError as exc:
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(
+                False,
+                self._tr("No internet connection: {}. Please check your connection or specify FFmpeg path manually.").format(str(exc)),
+            )
+        except DiskSpaceError as exc:
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(False, str(exc))
+        except PermissionError as exc:
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(
+                False,
+                self._tr("Permission denied (antivirus/firewall may be blocking): {}. Please add an exception or specify FFmpeg path manually.").format(str(exc)),
+            )
+        except subprocess.SubprocessError as exc:
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(
+                False,
+                self._tr("FFmpeg process error (antivirus/firewall may be blocking execution): {}. Please check your security software or specify path manually.").format(str(exc)),
+            )
+        except DownloadError as exc:
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(False, str(exc))
         except Exception as exc:
-            self.finished.emit(False, f"Setup failed: {exc}")
+            self._cleanup_partial(binary_path, dest_dir)
+            self.finished.emit(False, self._tr("Setup failed: {}").format(str(exc)))
             return
+
+    def _cleanup_partial(self, binary_path: Path, dest_dir: Path) -> None:
+        """Clean up partial download/extraction to avoid corrupt files."""
+        # Remove partial binary
+        if binary_path.exists():
+            try:
+                binary_path.unlink()
+            except OSError:
+                pass  # Best effort cleanup
+
+        # Remove any archive files
+        for archive_ext in ("*.zip", "*.tar.xz", "*.tar"):
+            for archive in dest_dir.glob(archive_ext):
+                try:
+                    archive.unlink()
+                except OSError:
+                    pass
+
+        # Clean up any extracted temp directories (empty ones from failed zip extract)
+        for item in dest_dir.iterdir():
+            if item.is_dir():
+                try:
+                    shutil.rmtree(item, ignore_errors=True)
+                except OSError:
+                    pass
 
     # ── pipeline steps ────────────────────────────────────────────────
 
@@ -317,8 +467,8 @@ class FFmpegDownloadWorker(QThread):
         archive_path = dest_dir / archive_filename
 
         # Step 1: Download
-        platform_label = "Windows" if _SYSTEM == "Windows" else "Linux"
-        self.log.emit(f"Downloading portable FFmpeg for {platform_label} ...")
+        platform_label = self._tr("Windows") if _SYSTEM == "Windows" else self._tr("Linux")
+        self.log.emit(self._tr("Downloading portable FFmpeg for {} ...").format(platform_label))
         self.progress.emit(0)
 
         _download_with_progress(
@@ -332,7 +482,7 @@ class FFmpegDownloadWorker(QThread):
             return
 
         # Step 2: Extract (only the binary)
-        self.log.emit("Extracting FFmpeg binary ...")
+        self.log.emit(self._tr("Extracting FFmpeg binary ..."))
         self.progress.emit(90)
 
         if _is_windows_x64():
@@ -352,20 +502,22 @@ class FFmpegDownloadWorker(QThread):
 
         # Step 4: Verify binary runs correctly
         self.progress.emit(95)
-        self.log.emit("Verifying FFmpeg binary ...")
+        self.log.emit(self._tr("Verifying FFmpeg binary ..."))
 
         if not binary_path.is_file():
-            self.finished.emit(False, "Binary not found after extraction.")
+            self.finished.emit(False, self._tr("Binary not found after extraction."))
             return
 
         if verify_ffmpeg_binary(binary_path):
             self.progress.emit(100)
             self.finished.emit(
-                True, "Portable FFmpeg installed and verified successfully."
+                True, self._tr("Portable FFmpeg installed and verified successfully.")
             )
         else:
             self.finished.emit(
                 False,
-                "FFmpeg binary extracted but verification failed. "
-                "The file may be corrupt. Please retry or specify path manually.",
+                self._tr(
+                    "FFmpeg binary extracted but verification failed. "
+                    "The file may be corrupt. Please retry or specify path manually."
+                ),
             )
