@@ -35,6 +35,9 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout(self.central_widget)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
+        # Add top bar with settings button
+        self._add_top_bar_ui()
+        
         # Add image selection UI
         self._add_image_selection_ui()
         
@@ -162,6 +165,35 @@ class MainWindow(QMainWindow):
             self.log_text_edit.append(self.tr("ERROR: No valid FFmpeg path configured."))
         else:
             self.log_text_edit.append(f"FFmpeg detected: {ffmpeg_path}")
+    
+    def _add_top_bar_ui(self) -> None:
+        """Add top bar with title and settings button."""
+        top_bar_layout = QHBoxLayout()
+        
+        # Title section on the left
+        title_layout = QVBoxLayout()
+        
+        # Main title - big and bold
+        title_label = QLabel(self.tr("SIS2VD - Image sequence converter"))
+        title_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        title_layout.addWidget(title_label)
+        
+        # Subtitle - small italics
+        subtitle_label = QLabel(self.tr("drag a sequence here"))
+        subtitle_label.setStyleSheet("font-size: 12px; font-style: italic; color: gray;")
+        title_layout.addWidget(subtitle_label)
+        
+        top_bar_layout.addLayout(title_layout)
+        
+        top_bar_layout.addStretch()
+        
+        # Settings button with gear emoji
+        settings_button = QPushButton(self.tr("⚙️"))
+        settings_button.setToolTip(self.tr("Settings"))
+        settings_button.clicked.connect(self._open_settings)
+        top_bar_layout.addWidget(settings_button)
+        
+        self.layout.addLayout(top_bar_layout)
     
     def _add_image_selection_ui(self) -> None:
         """Add image selection UI components."""
@@ -373,12 +405,6 @@ class MainWindow(QMainWindow):
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self._cancel_encoding)
         buttons_layout.addWidget(self.cancel_button)
-        
-        # Settings button with gear emoji
-        settings_button = QPushButton(self.tr("⚙️"))
-        settings_button.setToolTip(self.tr("Settings"))
-        settings_button.clicked.connect(self._open_settings)
-        buttons_layout.addWidget(settings_button)
         
         buttons_layout.addStretch()
         

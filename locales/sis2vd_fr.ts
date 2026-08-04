@@ -6,12 +6,12 @@
     <message>
         <location filename="../src/ui.py" line="22"/>
         <source>SIS2VD - Sny&apos;s Image Sequence to Video Converter</source>
-        <translation type="unfinished"></translation>
+        <translation>SIS2VD - Convertisseur de Séquence d&apos;Images en Vidéo</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="153"/>
         <source>FFmpeg not found</source>
-        <translation type="unfinished"></translation>
+        <translation>FFmpeg non trouvé</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="155"/>
@@ -19,17 +19,20 @@
 
 Please use Settings to specify a valid FFmpeg binary path.
 Without FFmpeg, this application cannot function.</source>
-        <translation type="unfinished"></translation>
+        <translation>FFmpeg n&apos;est pas configuré.
+
+Veuillez utiliser Paramètres pour spécifier un chemin binaire FFmpeg valide.
+Sans FFmpeg, cette application ne peut pas fonctionner.</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="161"/>
         <source>FFmpeg not available</source>
-        <translation type="unfinished"></translation>
+        <translation>FFmpeg non disponible</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="162"/>
         <source>ERROR: No valid FFmpeg path configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>ERREUR: Aucun chemin FFmpeg valide configuré.</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="173"/>
@@ -109,12 +112,12 @@ Without FFmpeg, this application cannot function.</source>
     <message>
         <location filename="../src/ui.py" line="378"/>
         <source>⚙️</source>
-        <translation type="unfinished"></translation>
+        <translation>⚙️</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="379"/>
         <source>Settings</source>
-        <translation type="unfinished">Paramètres</translation>
+        <translation>Paramètres</translation>
     </message>
     <message>
         <location filename="../src/ui.py" line="391"/>
@@ -131,12 +134,12 @@ Without FFmpeg, this application cannot function.</source>
     <message>
         <location filename="../src/onboarding_dialog.py" line="22"/>
         <source>Welcome to SIS2VD</source>
-        <translation type="unfinished"></translation>
+        <translation>Bienvenue dans SIS2VD</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="51"/>
         <source>Welcome to SIS2VD – Sny&apos;s Image Sequence to Video Converter</source>
-        <translation type="unfinished"></translation>
+        <translation>Bienvenue dans SIS2VD – Sny&apos;s Convertisseur de Séquences d&apos;Images en Vidéo</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="57"/>
@@ -157,185 +160,192 @@ Without FFmpeg, this application cannot function.</source>
     <message>
         <location filename="../src/onboarding_dialog.py" line="70"/>
         <source>Continue</source>
-        <translation type="unfinished">Continuer</translation>
+        <translation>Continuer</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="86"/>
         <source>FFmpeg is required</source>
-        <translation type="unfinished">FFmpeg est requis</translation>
+        <translation>FFmpeg est requis</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="93"/>
         <source>SIS2VD needs FFmpeg to encode videos.
 You can download it automatically, or point us to an existing installation.</source>
-        <translation type="unfinished">SIS2VD a besoin de FFmpeg pour encoder les vidéos.
+        <translation>SIS2VD a besoin de FFmpeg pour encoder les vidéos.
 Vous pouvez le télécharger automatiquement, ou nous indiquer un chemin d&apos;installation existant.</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="104"/>
         <source>Download FFmpeg automatically</source>
-        <translation type="unfinished">Télécharger FFmpeg automatiquement</translation>
+        <translation>Télécharger FFmpeg automatiquement</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="134"/>
         <source>I already have FFmpeg, specify path manually</source>
-        <translation type="unfinished">J&apos;ai déjà FFmpeg, spécifier le chemin manuellement</translation>
+        <translation>J&apos;ai déjà FFmpeg, spécifier le chemin manuellement</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="143"/>
         <source>FFmpeg is free and open-source software. The build provided is under the GPL license. Visit &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</source>
-        <translation type="unfinished">FFmpeg est un logiciel gratuit et open-source. La version fournie est sous licence GPL. Visitez &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</translation>
+        <translation>FFmpeg est un logiciel gratuit et open-source. La version fournie est sous licence GPL. Visitez &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="182"/>
         <source>Downloading FFmpeg … please wait.</source>
-        <translation type="unfinished">Téléchargement de FFmpeg … veuillez patienter.</translation>
+        <translation>Téléchargement de FFmpeg … veuillez patienter.</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="212"/>
         <source>Locate FFmpeg executable</source>
-        <translation type="unfinished">Localiser l&apos;exécutable FFmpeg</translation>
+        <translation>Localiser l&apos;exécutable FFmpeg</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="224"/>
         <source>Selected file does not exist or is not a valid executable.</source>
-        <translation type="unfinished">Le fichier sélectionné n&apos;existe pas ou n&apos;est pas un exécutable valide.</translation>
+        <translation>Le fichier sélectionné n&apos;existe pas ou n&apos;est pas un exécutable valide.</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="241"/>
         <source>FFmpeg located and registered successfully.</source>
-        <translation type="unfinished">FFmpeg localisé et enregistré avec succès.</translation>
+        <translation>FFmpeg localisé et enregistré avec succès.</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="247"/>
         <source>The selected file does not appear to be FFmpeg.</source>
-        <translation type="unfinished">Le fichier sélectionné ne semble pas être FFmpeg.</translation>
+        <translation>Le fichier sélectionné ne semble pas être FFmpeg.</translation>
     </message>
     <message>
         <location filename="../src/onboarding_dialog.py" line="252"/>
         <source>Could not verify the selected file as FFmpeg.</source>
-        <translation type="unfinished">Impossible de vérifier le fichier sélectionné comme FFmpeg.</translation>
+        <translation>Impossible de vérifier le fichier sélectionné comme FFmpeg.</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/settings_dialog.py" line="29"/>
+        <location filename="../src/settings_dialog.py" line="30"/>
         <source>Settings</source>
-        <translation type="unfinished">Paramètres</translation>
+        <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="45"/>
+        <location filename="../src/settings_dialog.py" line="48"/>
         <source>Language</source>
-        <translation type="unfinished">Langue</translation>
+        <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="49"/>
-        <location filename="../src/settings_dialog.py" line="57"/>
-        <location filename="../src/settings_dialog.py" line="234"/>
+        <location filename="../src/settings_dialog.py" line="52"/>
         <source>English</source>
-        <translation type="unfinished">Anglais</translation>
+        <translation>Anglais</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="49"/>
-        <location filename="../src/settings_dialog.py" line="55"/>
+        <location filename="../src/settings_dialog.py" line="53"/>
         <source>Français</source>
-        <translation type="unfinished">Français</translation>
+        <translation>Français</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="64"/>
+        <location filename="../src/settings_dialog.py" line="65"/>
         <source>FFmpeg</source>
-        <translation type="unfinished">FFmpeg</translation>
+        <translation>FFmpeg</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="77"/>
+        <location filename="../src/settings_dialog.py" line="79"/>
         <source>Leave empty to use auto-detected path</source>
-        <translation type="unfinished">Laissez vide pour utiliser le chemin détecté automatiquement</translation>
+        <translation>Laissez vide pour utiliser le chemin détecté automatiquement</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="81"/>
+        <location filename="../src/settings_dialog.py" line="83"/>
         <source>Browse...</source>
-        <translation type="unfinished">Parcourir...</translation>
+        <translation>Parcourir...</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="92"/>
+        <location filename="../src/settings_dialog.py" line="94"/>
         <source>Download portable FFmpeg</source>
-        <translation type="unfinished">Télécharger FFmpeg portable</translation>
+        <translation>Télécharger FFmpeg portable</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="92"/>
+        <location filename="../src/settings_dialog.py" line="94"/>
         <source>Auto-download not available</source>
-        <translation type="unfinished">Téléchargement automatique non disponible</translation>
+        <translation>Téléchargement automatique non disponible</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="99"/>
+        <location filename="../src/settings_dialog.py" line="101"/>
         <source>Reset and re-detect</source>
-        <translation type="unfinished">Réinitialiser et redétecter</translation>
+        <translation>Réinitialiser et redétecter</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="121"/>
+        <location filename="../src/settings_dialog.py" line="123"/>
         <source>FFmpeg is free and open-source software. The build provided is under the GPL license. Visit &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</source>
-        <translation type="unfinished">FFmpeg est un logiciel gratuit et open-source. La version fournie est sous licence GPL. Visitez &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</translation>
+        <translation>FFmpeg est un logiciel gratuit et open-source. La version fournie est sous licence GPL. Visitez &lt;a href=&apos;https://ffmpeg.org&apos;&gt;ffmpeg.org&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="141"/>
+        <location filename="../src/settings_dialog.py" line="143"/>
         <source>Save</source>
-        <translation type="unfinished">Enregistrer</translation>
+        <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="145"/>
+        <location filename="../src/settings_dialog.py" line="147"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
-    </message>
-    <message>
-        <location filename="../src/settings_dialog.py" line="163"/>
-        <source>FFmpeg found:</source>
-        <translation type="unfinished">FFmpeg trouvé:</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <location filename="../src/settings_dialog.py" line="167"/>
+        <source>FFmpeg found at:&lt;br/&gt;</source>
+        <translation>FFmpeg trouvé à:&lt;br/&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/settings_dialog.py" line="171"/>
+        <source>FFmpeg not found.
+Use the button below to install it.</source>
+        <translation>FFmpeg non trouvé.
+Utilisez le bouton ci-dessous pour l&apos;installer.</translation>
+    </message>
+    <message>
+        <source>FFmpeg found:</source>
+        <translation type="obsolete">FFmpeg trouvé:</translation>
+    </message>
+    <message>
         <source>FFmpeg not found. Use the button below to install it.</source>
-        <translation type="unfinished">FFmpeg non trouvé. Utilisez le bouton ci-dessous pour l&apos;installer.</translation>
+        <translation type="obsolete">FFmpeg non trouvé. Utilisez le bouton ci-dessous pour l&apos;installer.</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="176"/>
+        <location filename="../src/settings_dialog.py" line="189"/>
         <source>Select FFmpeg executable</source>
-        <translation type="unfinished">Sélectionner l&apos;exécutable FFmpeg</translation>
+        <translation>Sélectionner l&apos;exécutable FFmpeg</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="178"/>
+        <location filename="../src/settings_dialog.py" line="191"/>
         <source>Executables</source>
-        <translation type="unfinished">Exécutables</translation>
+        <translation>Exécutables</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="219"/>
+        <location filename="../src/settings_dialog.py" line="227"/>
         <source>Success</source>
-        <translation type="unfinished">Succès</translation>
+        <translation>Succès</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="226"/>
+        <location filename="../src/settings_dialog.py" line="230"/>
         <source>Failed</source>
-        <translation type="unfinished">Échec</translation>
+        <translation>Échec</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="247"/>
+        <location filename="../src/settings_dialog.py" line="251"/>
         <source>Invalid path</source>
-        <translation type="unfinished">Chemin invalide</translation>
+        <translation>Chemin invalide</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="248"/>
+        <location filename="../src/settings_dialog.py" line="252"/>
         <source>The specified FFmpeg path does not exist.</source>
-        <translation type="unfinished">Le chemin FFmpeg spécifié n&apos;existe pas.</translation>
+        <translation>Le chemin FFmpeg spécifié n&apos;existe pas.</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="256"/>
+        <location filename="../src/settings_dialog.py" line="260"/>
         <source>Restart Required</source>
-        <translation type="unfinished">Redémarrage requis</translation>
+        <translation>Redémarrage requis</translation>
     </message>
     <message>
-        <location filename="../src/settings_dialog.py" line="257"/>
+        <location filename="../src/settings_dialog.py" line="261"/>
         <source>Please restart the application for the language change to take effect.</source>
-        <translation type="unfinished">Veuillez redémarrer l&apos;application pour que le changement de langue prenne effet.</translation>
+        <translation>Veuillez redémarrer l&apos;application pour que le changement de langue prenne effet.</translation>
     </message>
 </context>
 </TS>
