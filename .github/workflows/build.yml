@@ -92,48 +92,46 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            cat > SIS2VD.spec << 'EOF'
-            block_cipher = None
-            a = Analysis(
-                ['run.py'],
-                pathex=[],
-                binaries=[],
-                datas=[('assets', 'assets'), ('locales', 'locales')],
-                hiddenimports=[],
-                hookspath=[],
-                hooksconfig={},
-                runtime_hooks=[],
-                excludes=[],
-                win_no_prefer_redirects=False,
-                win_private_assemblies=False,
-                cipher=block_cipher,
-                noarchive=False,
-            )
-            a.binaries = [x for x in a.binaries if 'libssl' not in x[0].lower() and 'libcrypto' not in x[0].lower()]
-            pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-            exe = EXE(
-                pyz,
-                a.scripts,
-                a.binaries,
-                a.zipfiles,
-                a.datas,
-                [],
-                name='SIS2VD',
-                debug=False,
-                bootloader_ignore_signals=False,
-                strip=False,
-                upx=True,
-                upx_exclude=[],
-                runtime_tmpdir=None,
-                console=False,
-                disable_windowed_traceback=False,
-                argv_emulation=False,
-                target_arch=None,
-                codesign_identity=None,
-                entitlements_file=None,
-                icon='assets/icon.png'
-            )
-            EOF
+            echo 'block_cipher = None' > SIS2VD.spec
+            echo 'a = Analysis([' >> SIS2VD.spec
+            echo "    ['run.py']," >> SIS2VD.spec
+            echo '    pathex=[],' >> SIS2VD.spec
+            echo '    binaries=[],' >> SIS2VD.spec
+            echo "    datas=[('assets', 'assets'), ('locales', 'locales')]," >> SIS2VD.spec
+            echo '    hiddenimports=[],' >> SIS2VD.spec
+            echo '    hookspath=[],' >> SIS2VD.spec
+            echo '    hooksconfig={},' >> SIS2VD.spec
+            echo '    runtime_hooks=[],' >> SIS2VD.spec
+            echo '    excludes=[],' >> SIS2VD.spec
+            echo '    win_no_prefer_redirects=False,' >> SIS2VD.spec
+            echo '    win_private_assemblies=False,' >> SIS2VD.spec
+            echo '    cipher=block_cipher,' >> SIS2VD.spec
+            echo '    noarchive=False,' >> SIS2VD.spec
+            echo ')' >> SIS2VD.spec
+            echo "a.binaries = [x for x in a.binaries if 'libssl' not in x[0].lower() and 'libcrypto' not in x[0].lower()]" >> SIS2VD.spec
+            echo 'pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)' >> SIS2VD.spec
+            echo 'exe = EXE(' >> SIS2VD.spec
+            echo '    pyz,' >> SIS2VD.spec
+            echo '    a.scripts,' >> SIS2VD.spec
+            echo '    a.binaries,' >> SIS2VD.spec
+            echo '    a.zipfiles,' >> SIS2VD.spec
+            echo '    a.datas,' >> SIS2VD.spec
+            echo '    [],' >> SIS2VD.spec
+            echo "    name='SIS2VD'," >> SIS2VD.spec
+            echo '    debug=False,' >> SIS2VD.spec
+            echo '    bootloader_ignore_signals=False,' >> SIS2VD.spec
+            echo '    strip=False,' >> SIS2VD.spec
+            echo '    upx=True,' >> SIS2VD.spec
+            echo '    upx_exclude=[],' >> SIS2VD.spec
+            echo '    runtime_tmpdir=None,' >> SIS2VD.spec
+            echo '    console=False,' >> SIS2VD.spec
+            echo '    disable_windowed_traceback=False,' >> SIS2VD.spec
+            echo '    argv_emulation=False,' >> SIS2VD.spec
+            echo '    target_arch=None,' >> SIS2VD.spec
+            echo '    codesign_identity=None,' >> SIS2VD.spec
+            echo '    entitlements_file=None,' >> SIS2VD.spec
+            echo "    icon='assets/icon.png'" >> SIS2VD.spec
+            echo ')' >> SIS2VD.spec
             pyinstaller SIS2VD.spec
           else
             pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="assets${{ steps.separator.outputs.separator }}assets" --add-data="locales${{ steps.separator.outputs.separator }}locales" run.py
