@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QLineEdit, QFileDialog,
                                QSpinBox, QSlider, QComboBox, QLabel,
-                               QProgressBar, QTextEdit, QMessageBox)
+                               QProgressBar, QTextEdit, QMessageBox, QCheckBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
 from .app_settings import AppSettings
@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
         title_layout.addWidget(title_label)
         
         # Subtitle - small italics
-        subtitle_label = QLabel(self.tr("drag a sequence here"))
+        subtitle_label = QLabel(self.tr("drag any image of your sequence here"))
         subtitle_label.setStyleSheet("font-size: 12px; font-style: italic; color: gray;")
         title_layout.addWidget(subtitle_label)
         
@@ -400,6 +400,11 @@ class MainWindow(QMainWindow):
         self.generate_button.clicked.connect(self._start_encoding)
         buttons_layout.addWidget(self.generate_button)
         
+        # Checkbox for allowing erasing existing MP4 file
+        self.allow_erase_checkbox = QCheckBox(self.tr("Allow erasing existing MP4 file"))
+        self.allow_erase_checkbox.setChecked(False)
+        buttons_layout.addWidget(self.allow_erase_checkbox)
+
         # "Annuler" button (initially disabled)
         self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.setEnabled(False)
@@ -443,6 +448,22 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Validation error", f"Error validating path: {str(e)}")
             return
         
+        # Check if output file exists and prompt for overwrite if checkbox unchecked
+        if output_file.exists() and not self.allow_erase_checkbox.isChecked():
+            reply = QMessageBox.question(
+                self,
+                self.tr("File already exists"),
+                self.tr(f"The file '{output_file.name}' already exists.\n\nDo you want to overwrite it?"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                # Check the box and proceed
+                self.allow_erase_checkbox.setChecked(True)
+            else:
+                # Cancel generation
+                return
+        
         # Get parameters
         pattern_info = self.current_sequence_info['pattern_info']
         sequence_info = self.current_sequence_info['sequence_info']
@@ -472,7 +493,8 @@ class MainWindow(QMainWindow):
             crf=crf,
             preset=preset,
             output_path=Path(output_path),
-            total_frames=total_frames
+            total_frames=total_frames,
+            allow_overwrite=self.allow_erase_checkbox.isChecked()
         )
         
         # Connect signals

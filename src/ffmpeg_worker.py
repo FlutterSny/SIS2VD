@@ -26,12 +26,14 @@ class FFmpegWorker(QThread):
         self._preset: Optional[str] = None
         self._output_path: Optional[Path] = None
         self._total_frames: Optional[int] = None
+        self._allow_overwrite: bool = False
         self._process: Optional[subprocess.Popen] = None
         self._output_file_created: bool = False
     
     def set_parameters(self, start_number: int, framerate: int, 
                        input_pattern: str, input_directory: Path,
-                       crf: int, preset: str, output_path: Path, total_frames: int) -> None:
+                       crf: int, preset: str, output_path: Path, total_frames: int,
+                       allow_overwrite: bool = False) -> None:
         """Set FFmpeg encoding parameters."""
         self._start_number = start_number
         self._framerate = framerate
@@ -41,6 +43,7 @@ class FFmpegWorker(QThread):
         self._preset = preset
         self._output_path = output_path
         self._total_frames = total_frames
+        self._allow_overwrite = allow_overwrite
     
     def _build_ffmpeg_command(self) -> list[str]:
         """Build FFmpeg command with all parameters.
@@ -82,8 +85,13 @@ class FFmpegWorker(QThread):
             '-crf', str(self._crf),
             '-preset', self._preset,
             '-pix_fmt', 'yuv420p',
-            output_str
         ]
+        
+        # Add -y flag to allow overwriting existing output file
+        if self._allow_overwrite:
+            command.append('-y')
+        
+        command.append(output_str)
         
         return command
     

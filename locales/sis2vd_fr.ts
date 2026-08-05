@@ -9,12 +9,12 @@
         <translation>SIS2VD - Convertisseur de Séquence d&apos;Images en Vidéo</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="153"/>
+        <location filename="../src/ui.py" line="156"/>
         <source>FFmpeg not found</source>
         <translation>FFmpeg non trouvé</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="155"/>
+        <location filename="../src/ui.py" line="158"/>
         <source>FFmpeg is not configured.
 
 Please use Settings to specify a valid FFmpeg binary path.
@@ -25,53 +25,63 @@ Veuillez utiliser Paramètres pour spécifier un chemin binaire FFmpeg valide.
 Sans FFmpeg, cette application ne peut pas fonctionner.</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="161"/>
+        <location filename="../src/ui.py" line="164"/>
         <source>FFmpeg not available</source>
         <translation>FFmpeg non disponible</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="162"/>
+        <location filename="../src/ui.py" line="165"/>
         <source>ERROR: No valid FFmpeg path configured.</source>
         <translation>ERREUR: Aucun chemin FFmpeg valide configuré.</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="173"/>
+        <location filename="../src/ui.py" line="177"/>
+        <source>SIS2VD - Image sequence converter</source>
+        <translation>SIS2VD - Convertisseur de Séquences d'Images</translation>
+    </message>
+    <message>
+        <location filename="../src/ui.py" line="182"/>
+        <source>drag any image of your sequence here</source>
+        <translation>glissez une image de votre séquence ici</translation>
+    </message>
+    <message>
+        <location filename="../src/ui.py" line="205"/>
         <source>Image sequence:</source>
         <translation>Séquence d&apos;images:</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="178"/>
+        <location filename="../src/ui.py" line="210"/>
         <source>Select an image from the sequence...</source>
         <translation>Sélectionnez une image de la séquence...</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="183"/>
-        <location filename="../src/ui.py" line="326"/>
+        <location filename="../src/ui.py" line="215"/>
+        <location filename="../src/ui.py" line="358"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="214"/>
+        <location filename="../src/ui.py" line="246"/>
         <source>Pattern not detected</source>
         <translation>Pattern non détecté</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="224"/>
+        <location filename="../src/ui.py" line="256"/>
         <source>No sequence files found</source>
         <translation>Aucun fichier de séquence trouvé</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="266"/>
+        <location filename="../src/ui.py" line="298"/>
         <source>Framerate (fps):</source>
         <translation>Fréquence d&apos;Images(fps):</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="279"/>
+        <location filename="../src/ui.py" line="311"/>
         <source>CRF (Quality):</source>
         <translation>CRF (Qualité):</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="281"/>
+        <location filename="../src/ui.py" line="313"/>
         <source>CRF (Constant Rate Factor): x264 quality scale
 0 = lossless, 18 = high quality (default), 23 = ffmpeg default,
 28 = good quality, 51 = worst quality. Lower values = better quality.</source>
@@ -80,47 +90,64 @@ Sans FFmpeg, cette application ne peut pas fonctionner.</translation>
 28 = bonne qualité, 51 = pire qualité. Des valeurs plus basses = meilleure qualité.</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="302"/>
+        <location filename="../src/ui.py" line="334"/>
         <source>x264 Preset:</source>
         <translation>Préréglage x264:</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="319"/>
+        <location filename="../src/ui.py" line="351"/>
         <source>Output file:</source>
         <translation>Fichier de sortie:</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="323"/>
+        <location filename="../src/ui.py" line="355"/>
         <source>Select output file...</source>
         <translation>Sélectionnez le fichier de sortie...</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="352"/>
+        <location filename="../src/ui.py" line="384"/>
         <source>Sequence not detected</source>
         <translation>Séquence non détectée</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="367"/>
+        <location filename="../src/ui.py" line="399"/>
         <source>Generate video</source>
         <translation>Générer la vidéo</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="372"/>
+        <location filename="../src/ui.py" line="404"/>
+        <source>Allow erasing existing MP4 file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui.py" line="409"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="378"/>
+        <location filename="../src/ui.py" line="455"/>
+        <source>File already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui.py" line="456"/>
+        <source>The file &apos;{output_file.name}&apos; already exists.
+
+Do you want to overwrite it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui.py" line="191"/>
         <source>⚙️</source>
         <translation>⚙️</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="379"/>
+        <location filename="../src/ui.py" line="192"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../src/ui.py" line="391"/>
+        <location filename="../src/ui.py" line="422"/>
         <source>FFmpeg logs will appear here...</source>
         <translation>Les journaux FFmpeg apparaîtront ici...</translation>
     </message>
