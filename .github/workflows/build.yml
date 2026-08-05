@@ -87,9 +87,57 @@ jobs:
       # --windowed: No console window (GUI application)
       # --name: Output executable name
       # --add-data: Include the src package and assets
+      # Linux: Use spec file to exclude OpenSSL shared libraries to avoid version conflicts
       - name: Build with PyInstaller
+        shell: bash
         run: |
-          pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="assets${{ steps.separator.outputs.separator }}assets" --add-data="locales${{ steps.separator.outputs.separator }}locales" run.py
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            cat > SIS2VD.spec << 'EOF'
+            block_cipher = None
+            a = Analysis(
+                ['run.py'],
+                pathex=[],
+                binaries=[],
+                datas=[('assets', 'assets'), ('locales', 'locales')],
+                hiddenimports=[],
+                hookspath=[],
+                hooksconfig={},
+                runtime_hooks=[],
+                excludes=[],
+                win_no_prefer_redirects=False,
+                win_private_assemblies=False,
+                cipher=block_cipher,
+                noarchive=False,
+            )
+            a.binaries = [x for x in a.binaries if 'libssl' not in x[0].lower() and 'libcrypto' not in x[0].lower()]
+            pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+            exe = EXE(
+                pyz,
+                a.scripts,
+                a.binaries,
+                a.zipfiles,
+                a.datas,
+                [],
+                name='SIS2VD',
+                debug=False,
+                bootloader_ignore_signals=False,
+                strip=False,
+                upx=True,
+                upx_exclude=[],
+                runtime_tmpdir=None,
+                console=False,
+                disable_windowed_traceback=False,
+                argv_emulation=False,
+                target_arch=None,
+                codesign_identity=None,
+                entitlements_file=None,
+                icon='assets/icon.png'
+            )
+            EOF
+            pyinstaller SIS2VD.spec
+          else
+            pyinstaller --onefile --windowed ${{ steps.icon.outputs.icon_arg }} --name=SIS2VD --add-data="assets${{ steps.separator.outputs.separator }}assets" --add-data="locales${{ steps.separator.outputs.separator }}locales" run.py
+          fi
       
       # Step 9: Determine output filename based on OS
       - name: Set output filename
