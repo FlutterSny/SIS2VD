@@ -107,7 +107,7 @@ jobs:
             echo '    win_private_assemblies=False,' >> SIS2VD.spec
             echo '    cipher=block_cipher,' >> SIS2VD.spec
             echo '    noarchive=False,' >> SIS2VD.spec
-            echo ')' >> SIS2VD.spec
+            echo '])' >> SIS2VD.spec
             echo "a.binaries = [x for x in a.binaries if 'libssl' not in x[0].lower() and 'libcrypto' not in x[0].lower()]" >> SIS2VD.spec
             echo 'pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)' >> SIS2VD.spec
             echo 'exe = EXE(' >> SIS2VD.spec
