@@ -468,7 +468,7 @@ class MainWindow(QMainWindow):
         pattern_info = self.current_sequence_info['pattern_info']
         sequence_info = self.current_sequence_info['sequence_info']
         
-        start_number = pattern_info['start_number']
+        start_number = sequence_info['start_number']
         input_pattern = pattern_info['pattern']
         total_frames = sequence_info['total_count']
         framerate = self.framerate_spinbox.value()
