@@ -1,17 +1,20 @@
 import sys
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Tuple
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QLineEdit, QFileDialog,
                                QSpinBox, QSlider, QComboBox, QLabel,
                                QProgressBar, QTextEdit, QMessageBox, QCheckBox)
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap
+from PySide6.QtCore import Qt, QRectF, QPoint
+from PySide6.QtGui import (QPalette, QColor, QDragEnterEvent, QDropEvent, QPixmap,
+                           QPainter)
+from PySide6.QtWidgets import QToolTip
 from .app_settings import AppSettings
 from .sequence_utils import extract_pattern, scan_sequence
 from .ffmpeg_worker import FFmpegWorker
 from .settings_dialog import SettingsDialog
+from .ui_sequence_preview import SequencePreviewBar
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +28,7 @@ class MainWindow(QMainWindow):
         # Worker thread
         self.worker: Optional[FFmpegWorker] = None
         self.current_sequence_info: Optional[Dict[str, Any]] = None
+        self.targetfps = 25
         
         # Drag and drop overlay
         self._setup_drop_overlay()
@@ -265,25 +269,45 @@ class MainWindow(QMainWindow):
             'directory': directory
         }
         
-        # Update sequence info label
-        total_count = sequence_info['total_count']
-        start_num = sequence_info['start_number']
-        end_num = sequence_info['end_number']
-        gaps = sequence_info['gaps']
-        
-        if gaps:
-            gap_info = f", {len(gaps)} trou(s)"
+        # Apply gap-based styling (only on detection, not on framerate changes)
+        if sequence_info['gaps']:
             self.sequence_info_label.setStyleSheet("color: orange; font-style: italic;")
         else:
-            gap_info = ""
             self.sequence_info_label.setStyleSheet("color: green; font-style: normal;")
         
-        info_text = f"Séquence: {total_count} images ({start_num}-{end_num}){gap_info}"
-        self.sequence_info_label.setText(info_text)
+        # Update sequence info label using shared helper
+        self._update_sequence_info()
         
         # Set default output path based on sequence location
         self._set_default_output_path(directory, pattern_info['prefix'])
     
+    def _on_framerate_changed(self, fps: int) -> None:
+        """Handle framerate spinbox changes and update the live preview."""
+        self.targetfps = fps
+        self._update_sequence_info()
+
+    def _update_sequence_info(self) -> None:
+        """Update the sequence info label with the current framerate preview."""
+        if not self.current_sequence_info:
+            return
+
+        sequence_info = self.current_sequence_info['sequence_info']
+        total_count = sequence_info['total_count']
+        start_num = sequence_info['start_number']
+        end_num = sequence_info['end_number']
+        gaps = sequence_info['gaps']
+
+        if gaps:
+            gap_info = f", {len(gaps)} trou(s)"
+        else:
+            gap_info = ""
+
+        info_text = f"Séquence: {total_count} images ({start_num}-{end_num}){gap_info} @ {self.targetfps}"
+        self.sequence_info_label.setText(info_text)
+
+        # Also update the visual preview bar
+        self.sequence_preview_bar.set_sequence_info(start_num, end_num, gaps)
+
     def _set_default_output_path(self, directory: Path, prefix: str) -> None:
         """Set default output path based on sequence location."""
         # Create output filename from prefix
@@ -300,7 +324,8 @@ class MainWindow(QMainWindow):
         
         self.framerate_spinbox = QSpinBox()
         self.framerate_spinbox.setRange(1, 120)
-        self.framerate_spinbox.setValue(25)
+        self.framerate_spinbox.setValue(self.targetfps)
+        self.framerate_spinbox.valueChanged.connect(self._on_framerate_changed)
         framerate_layout.addWidget(self.framerate_spinbox)
         framerate_layout.addStretch()
         
@@ -384,7 +409,11 @@ class MainWindow(QMainWindow):
         self.sequence_info_label = QLabel(self.tr("Sequence not detected"))
         self.sequence_info_label.setStyleSheet("color: gray; font-style: italic;")
         self.layout.addWidget(self.sequence_info_label)
-        
+
+        # Visual sequence preview bar (full width, ~12 px tall)
+        self.sequence_preview_bar = SequencePreviewBar(self)
+        self.layout.addWidget(self.sequence_preview_bar)
+
         # Progress bar (initially hidden)
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
@@ -520,6 +549,7 @@ class MainWindow(QMainWindow):
     def _on_progress_updated(self, percentage: int) -> None:
         """Handle progress updates from worker."""
         self.progress_bar.setValue(percentage)
+        self.sequence_preview_bar.set_encoding_progress(percentage)
     
     def _on_log_output(self, log_line: str) -> None:
         """Handle log output from worker."""
@@ -541,6 +571,9 @@ class MainWindow(QMainWindow):
         
         # Hide progress bar after a delay
         self.progress_bar.setVisible(False)
+        
+        # Reset preview bar encoding progress
+        self.sequence_preview_bar.set_encoding_progress(0)
         
         # Clear worker reference
         self.worker = None

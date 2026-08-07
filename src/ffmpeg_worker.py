@@ -29,6 +29,8 @@ class FFmpegWorker(QThread):
         self._allow_overwrite: bool = False
         self._process: Optional[subprocess.Popen] = None
         self._output_file_created: bool = False
+        self._startup_progress_base: int = 0
+        self._encoding_started: bool = False
     
     def set_parameters(self, start_number: int, framerate: int, 
                        input_pattern: str, input_directory: Path,
@@ -149,6 +151,22 @@ class FFmpegWorker(QThread):
     
     def _parse_progress(self, line: str) -> None:
         """Parse FFmpeg output line for progress information."""
+        
+        # Check for startup checkpoints before encoding begins
+        if not self._encoding_started:
+            if "Input #0" in line:
+                self.progress_updated.emit(5)
+            elif "Stream mapping:" in line:
+                self.progress_updated.emit(10)
+            elif "profile High" in line or "profile Main" in line:
+                self.progress_updated.emit(12)
+            elif "Output #0" in line:
+                self.progress_updated.emit(15)
+            elif "frame=" in line:
+                self._encoding_started = True
+                self._startup_progress_base = 15
+                return
+        
         # Look for frame= indicator in FFmpeg output
         # Format: frame= 150 fps=30 q=28.0 size= 1024kB time=00:00:05.00 bitrate=1638.4kbits/s speed=1x
         match = re.search(r'frame=\s*(\d+)', line)
@@ -157,10 +175,16 @@ class FFmpegWorker(QThread):
             
             # Calculate percentage based on total frames
             if self._total_frames and self._total_frames > 0:
-                percentage = int((current_frame / self._total_frames) * 100)
+                raw_percentage = (current_frame / self._total_frames) * 100
+                
+                # Scale to remaining range after startup progress
+                remaining_range = 100 - self._startup_progress_base
+                scaled_percentage = (raw_percentage / 100) * remaining_range
+                final_percentage = int(self._startup_progress_base + scaled_percentage)
+                
                 # Cap at 100
-                percentage = min(percentage, 100)
-                self.progress_updated.emit(percentage)
+                final_percentage = min(final_percentage, 100)
+                self.progress_updated.emit(final_percentage)
     
     def cancel(self) -> None:
         """Cancel the FFmpeg process."""
